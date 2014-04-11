@@ -2,11 +2,10 @@ package org.gutencode.jsx
 
 import sbt._
 import Keys._
-import jsx.JsxCompiler
 
 object JsxKeys {
-  val jsxCompile      = TaskKey[Seq[File]]("jsx-compile", "Compile a string to jsx")
-  val jsxEngineName    = SettingKey[String]("jsx-engine-name", "Javascript engine used.")
+  val jsxCompile     = TaskKey[Seq[File]]("jsx-compile", "Compile a string to jsx")
+  val jsxEngineName  = SettingKey[String]("jsx-engine-name", "Javascript engine used.")
 }
 
 object JsxPlugin extends Plugin {
@@ -44,7 +43,7 @@ object JsxPlugin extends Plugin {
         if (jsx.lastModified > target.lastModified) {
           streams.log.info("Generating '%s'" format target.getName)
           val template = IO.read(jsx)
-          val rendered = compiler.render(template)
+          val rendered = compiler.transformJsx(template)
           rendered.foreach(res => IO.write(target, res.code))
         } else
           streams.log.debug("Template '%s' older than target. Ignoring." format jsx.getName)
