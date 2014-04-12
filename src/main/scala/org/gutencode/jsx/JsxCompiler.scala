@@ -42,10 +42,15 @@ class JsxCompiler(engineName: String="nashorn") {
    * @return
    */
   def transformJsx(component: String):Option[JsxCompileResult] = {
-    engine.eval(s"""var __script=${cleanup(component)};""")
-    val jsCommand = s"""JSXTransformer.transform(__script);"""
+    val transformCommand =
+      s"""
+        |(function(transform){
+        |  var _script=${cleanup(component)};
+        |  return transform(_script);
+        |})(JSXTransformer.transform);
+      """.stripMargin
     try {
-      val result = Option(engine.eval(jsCommand)).map(_.asInstanceOf[jdk.nashorn.api.scripting.ScriptObjectMirror])
+      val result = Option(engine.eval(transformCommand)).map(_.asInstanceOf[jdk.nashorn.api.scripting.ScriptObjectMirror])
       result match {
         case Some(js) => Some(JsxCompileResult(code = js.get("code").asInstanceOf[String], None, None))
         case None => None

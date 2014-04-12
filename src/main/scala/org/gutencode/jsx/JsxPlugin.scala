@@ -15,7 +15,7 @@ object JsxPlugin extends Plugin {
   val jsxSettings:Seq[Setting[_]] = Seq(
     jsxEngineName := "nashorn",
     sourceDirectory in jsxCompile <<= (sourceDirectory in Compile) / "jsx",
-    sourceManaged in jsxCompile <<= (sourceManaged in Compile) / "js",
+    sourceManaged in jsxCompile   <<= (sourceManaged in Compile) / "js",
     jsxCompile := {
       generateFromJsx(
         streams.value,
