@@ -1,4 +1,4 @@
-import org.gutencode.jsx.JsxKeys._
+import JsxKeys._
 
 name := "a simple test"
 

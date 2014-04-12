@@ -3,33 +3,43 @@ package org.gutencode.jsx
 import sbt._
 import Keys._
 
-object JsxKeys {
-  val jsxCompile     = TaskKey[Seq[File]]("jsx-compile", "Compile a string to jsx")
-  val jsxEngineName  = SettingKey[String]("jsx-engine-name", "Javascript engine used.")
-}
+
 
 object JsxPlugin extends Plugin {
+
+  object JsxKeys {
+    val jsxCompile     = TaskKey[Seq[File]]("jsx-compile",     "Compile a string to jsx")
+    val jsxExtension   = SettingKey[String]("jsx-extension",   "File extension of file to compile.")
+    val jsxEngineName  = SettingKey[String]("jsx-engine-name", "Javascript engine used.")
+  }
 
   import JsxKeys._
 
   val jsxSettings:Seq[Setting[_]] = Seq(
     jsxEngineName := "nashorn",
-    sourceDirectory in jsxCompile <<= (sourceDirectory in Compile) / "jsx",
+    jsxExtension := "jsx",
+    sourceDirectory in jsxCompile := {
+      (sourceDirectory in Compile).value / "jsx"
+    },
     sourceManaged in jsxCompile   <<= (sourceManaged in Compile) / "js",
     jsxCompile := {
       generateFromJsx(
         streams.value,
+        jsxExtension.value,
         (sourceDirectory in jsxCompile).value,
         (sourceManaged   in jsxCompile).value)
     },
-    resourceGenerators in Compile <+= jsxCompile
+    sourceGenerators in Compile <+= jsxCompile,
+    watchSources <++=
+      (sourceDirectory in jsxCompile, jsxExtension) map {(path,extension) =>
+        (path ** ("*." + extension)).get
+      }
+
   )
 
-  def generateFromJsx(streams: TaskStreams, sourceDir: File, targetDir: File): Seq[File] = {
-    println(s"Generating from ${sourceDir} to $targetDir")
-    val files = sourceDir ** "*.jsx"
+  def generateFromJsx(streams: TaskStreams, jsxExtension: String, sourceDir: File, targetDir: File): Seq[File] = {
+    val files = sourceDir ** s"*.$jsxExtension"
     val compiler = new JsxCompiler()
-
     def changeExtension(f: File): File = {
       val (ext, name) = f.getName.reverse.span(_ != '.')
       new File(f.getParent, name.drop(1).reverse.toString + ".js")

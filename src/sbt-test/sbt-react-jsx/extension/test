@@ -1,0 +1,11 @@
+# check that files get compiled....
+
+> jsxCompile
+$ exists target/scala-2.10/src_managed/main/js/Hello.js
+$ exists target/scala-2.10/src_managed/main/js/subdir/Hello.js
+$ exists target/scala-2.10/src_managed/main/js/a_class_definition.js
+> clean
+> products
+$ exists target/scala-2.10/src_managed/main/js/Hello.js
+$ exists target/scala-2.10/src_managed/main/js/subdir/Hello.js
+$ exists target/scala-2.10/src_managed/main/js/a_class_definition.js
